@@ -7,6 +7,8 @@ if [ ! -n "$1" ] ;then
     echo
     echo "Usage: "
     echo "    bash $0 <API_KEY>"
+    echo "    or"
+    echo "    bash $0 <API_KEY> <HOST> <IP>"
     echo
     exit 1
 fi
