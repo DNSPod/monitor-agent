@@ -1,3 +1,5 @@
+#!/bin/bash
+
 # 参数检查
 if [ ! -n "$1" ] ;then
     echo ":( API_KEY is needed!"
@@ -18,8 +20,6 @@ DEBUG=1
 # 如果进程存在，则先杀掉
 PID=$$
 ps -ef | grep $0 | grep -v grep | grep -v " $PID " | awk '{print $2}' | xargs kill
-
-
 # 获取IP地址，主机等信息
 IP_ADDRS="`LC_ALL=en /sbin/ifconfig | grep 'inet addr' | grep -v '255.0.0.0' \
     | head -n1 | cut -f2 -d':' | awk '{print $1}'`"
@@ -44,7 +44,7 @@ disk_info(){
         disk_use=`df | grep -E "${disk}$" | grep -Eo "[0-9]+%" | grep -Eo "[0-9]+"`
         metric_disks_use[$i]=$disk_use
         if [ $DEBUG -eq 1 ]; then
-            echo $disk, disk_use=$disk_use
+            echo "disk: $disk, percent disk used: $disk_use%"
         fi
         i=`expr $i + 1`
     done
@@ -55,14 +55,14 @@ disk_info(){
 send_metric(){
     exec 8>/dev/tcp/$SERVER/$PORT
     if [ "$?" == "0" ];then
-        echo connect ok
+        #echo connect ok
         time=`date +%s`
-        metric_name=`echo $1 | sed "s/\//_/g"`
-        echo "$API_KEY/$HOSTNAME/$IP_ADDRS/${metric_name} $2 $time"
+        metric_name=`echo $1 | sed "s/\//___/g"`
+        echo "First post: $API_KEY/$HOSTNAME/$IP_ADDRS/${metric_name} $2 $time"
         echo "$API_KEY/$HOSTNAME/$IP_ADDRS/${metric_name} $2 $time" >&8
         exec 8>&-
     else
-        echo send metric failed
+        echo failed to send metric
     fi
 }
 
@@ -70,16 +70,16 @@ send_metric(){
 send_all(){
     i=0
     for disk in $metric_disks;do
-        send_metric "disk_use.${disk}" ${metric_disks_use[$i]}
+        send_metric "percent-disk-used.mounted-on:${disk}" ${metric_disks_use[$i]}
         i=`expr $i + 1`
     done
 }
 
 # 完成一轮信息收集
 collect() {
-    echo time=`date +"%Y-%m-%d %H:%M:%S"` begin collect.
-    echo "collector_ip=$SERVER, collector_port=$PORT, api_key=$API_KEY"
-    echo "ip_addr=${IP_ADDRS}, hostname=$HOSTNAME"
+    #echo time=`date +"%Y-%m-%d %H:%M:%S"` begin collect.
+    #echo "collector_ip=$SERVER, collector_port=$PORT, api_key=$API_KEY"
+    #echo "ip_addr=${IP_ADDRS}, hostname=$HOSTNAME"
     echo
 
     disk_info
@@ -103,5 +103,7 @@ run(){
 }
 
 collect
-echo "DNSPod monitor agent run ok."
+echo
+echo "Congratulations, DNSPod disk usage agent runs in background successfully."
+echo
 run &
