@@ -4,7 +4,7 @@ if [ ! -n "$1" ] ;then
     echo "You can get API_KEY from https://monitor.dnspod.cn/custom-monitoring-wizard"
     echo
     echo "Usage: "
-    echo "    $0 <API_KEY>"
+    echo "    bash $0 <API_KEY>"
     echo
     exit 1
 fi
@@ -17,7 +17,7 @@ DEBUG=1
 
 # 如果进程存在，则先杀掉
 PID=$$
-ps -ef | grep $API_KEY | grep -v grep | grep -v " $PID " | awk '{print $2}' | xargs kill
+ps -ef | grep $0 | grep -v grep | grep -v " $PID " | awk '{print $2}' | xargs kill
 
 
 # 获取IP地址，主机等信息
