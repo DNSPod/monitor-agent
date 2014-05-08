@@ -1,6 +1,11 @@
 # 参数检查
 if [ ! -n "$1" ] ;then
-    echo "you have not input the API_KEY!"
+    echo ":( API_KEY is needed!"
+    echo "You can get API_KEY from https://monitor.dnspod.cn/custom-monitoring-wizard"
+    echo
+    echo "Usage: "
+    echo "    $0 <API_KEY>"
+    echo
     exit 1
 fi
 
@@ -18,7 +23,7 @@ ps -ef | grep $API_KEY | grep -v grep | grep -v " $PID " | awk '{print $2}' | xa
 # 获取IP地址，主机等信息
 IP_ADDRS="`LC_ALL=en /sbin/ifconfig | grep 'inet addr' | grep -v '255.0.0.0' \
     | head -n1 | cut -f2 -d':' | awk '{print $1}'`"
-if [ -z "$IP_ADDRS" ]; then 
+if [ -z "$IP_ADDRS" ]; then
     IP_ADDRS="127.0.0.1"
 fi
 HOSTNAME=`hostname -s`
@@ -50,12 +55,12 @@ disk_info(){
 send_metric(){
     exec 8>/dev/tcp/$SERVER/$PORT
     if [ "$?" == "0" ];then
-        echo connect ok 
+        echo connect ok
         time=`date +%s`
         metric_name=`echo $1 | sed "s/\//_/g"`
         echo "$API_KEY/$HOSTNAME/$IP_ADDRS/${metric_name} $2 $time"
         echo "$API_KEY/$HOSTNAME/$IP_ADDRS/${metric_name} $2 $time" >&8
-        exec 8>&-  
+        exec 8>&-
     else
         echo send metric failed
     fi
@@ -83,7 +88,7 @@ collect() {
 
 run(){
     trap "" HUP
-    
+
     # 刚开始先搞几个点，为了好看
     sleep 10
     collect >/dev/null 2>&1
