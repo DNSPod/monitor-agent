@@ -20,13 +20,23 @@ DEBUG=1
 # 如果进程存在，则先杀掉
 PID=$$
 ps -ef | grep $0 | grep -v grep | grep -v " $PID " | awk '{print $2}' | xargs kill
+
 # 获取IP地址，主机等信息
-IP_ADDRS="`LC_ALL=en /sbin/ifconfig | grep 'inet addr' | grep -v '255.0.0.0' \
-    | head -n1 | cut -f2 -d':' | awk '{print $1}'`"
-if [ -z "$IP_ADDRS" ]; then
-    IP_ADDRS="127.0.0.1"
+if [ ! -n "$2" ] ;then
+    HOSTNAME=`hostname -s`
+else
+    HOSTNAME=$2
 fi
-HOSTNAME=`hostname -s`
+
+if [ ! -n "$3" ] ;then
+    IP_ADDRS="`LC_ALL=en /sbin/ifconfig | grep 'inet addr' | grep -v '255.0.0.0' \
+        | head -n1 | cut -f2 -d':' | awk '{print $1}'`"
+    if [ -z "$IP_ADDRS" ]; then
+        IP_ADDRS="127.0.0.1"
+    fi
+else
+   IP_ADDRS=$3
+fi
 
 
 # 磁盘使用
