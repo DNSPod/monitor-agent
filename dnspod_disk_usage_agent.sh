@@ -21,7 +21,7 @@ DEBUG=1
 
 # 如果进程存在，则先杀掉
 PID=$$
-ps -ef | grep $0 | grep -v grep | grep -v " $PID " | awk '{print $2}' | xargs kill
+ps -ef | grep $0 | grep -v grep | grep -v " $PID " | awk '{print $2}' | xargs kill 2> /dev/null
 
 # 获取IP地址，主机等信息
 if [ ! -n "$2" ] ;then
